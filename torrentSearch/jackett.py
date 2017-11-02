@@ -5,6 +5,7 @@ from xml.etree.ElementTree import fromstring
 
 from http_utils import convert_query_to_percent_encoded_octets, build_url, fetch_url
 from torrent import Torrent
+from utils import humansize
 
 class Jackett(object):
 	"""docstring for Jackett"""
@@ -62,9 +63,10 @@ class Jackett(object):
 			date = child.find('pubDate').text
 			magnet = child.find('link').text
 			size = child.find('size').text
+			size = humansize(int(size))
 
 			torrent = Torrent(title, magnet=magnet, size=size, date=date)
-			results.append(torrent.get_all_attr())
+			results.append(torrent)
 
 		return results
 
