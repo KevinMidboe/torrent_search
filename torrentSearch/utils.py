@@ -3,7 +3,7 @@
 # @Author: KevinMidboe
 # @Date:   2017-11-01 15:57:23
 # @Last Modified by:   KevinMidboe
-# @Last Modified time: 2017-11-02 15:14:31
+# @Last Modified time: 2017-11-02 16:20:29
 
 import re
 from datetime import datetime
@@ -48,3 +48,13 @@ def pagesToCount(multiple, total):
 	if (multiple > total):
 		return total
 	return multiple
+
+
+def humansize(nbytes):
+	suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+	i = 0
+	while nbytes >= 1024 and i < len(suffixes)-1:
+		nbytes /= 1024.
+		i += 1
+	f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
+	return '{} {}'.format(f, suffixes[i])
