@@ -96,7 +96,7 @@ class Piratebay(object):
 
 				torrent = Torrent(name, magnet['href'], size, uploader, date, seed, leech, url)
 
-				torrents_found.append(torrent.get_all_attr())
+				torrents_found.append(torrent)
 			else:
 				# print(torrentElement)
 				continue
