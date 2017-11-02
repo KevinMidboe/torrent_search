@@ -1,14 +1,17 @@
 #!/usr/bin/env python3.6
 import configparser
+import sys, argparse, json
 
-def create_jackett_client():
+from jackett import Jackett
+from piratebay import Piratebay
+
+def getConfig():
 	config = configparser.ConfigParser()
 	config.read('config.example.ini')
-	jackett_host = config['JACKETT']['JACKETT_HOST']
-	jackett_port = config['JACKETT']['JACKETT_PORT']
-	jackett_use_ssl = config['JACKETT']['JACKETT_SSL']
+	jackett_host = config['JACKETT']['HOST']
+	jackett_use_ssl = config['JACKETT']['SSL']
 
-	return [jackett_host, jackett_port, jackett_use_ssl]
+	return config
 
 def search(term='', user=None, sort='date', order='desc', category='0_0',
 		quality_filter='0', page='1', per_page=75):
@@ -48,18 +51,22 @@ def chooseCandidate(torrent_list):
 	return interesting_torrents
 
 
-def searchTorrentSite(query, site='piratebay'):
-	if site is 'piratebay':
-		pirate = piratebay()
-		torrents_found = pirate.search(query, page=0, multiple_pages=5, sort='size')
-	elif site is 'jackett':
-		jackett = jackett()
+def searchTorrentSite(config, query, site):
+	if site == 'piratebay':
+		pirate = Piratebay(config['PIRATEBAY']['HOST'], config['PIRATEBAY']['PATH'],
+			config['PIRATEBAY']['LIMIT'], config['PIRATEBAY']['SSL'])
 		torrents_found = pirate.search(query)
+	elif site == 'jackett':
+		jackett = Jackett(config['JACKETT']['apikey'], config['JACKETT']['HOST'], 
+			config['JACKETT']['PATH'], config['JACKETT']['LIMIT'], config.getboolean('JACKETT', 'SSL'))
+		torrents_found = jackett.search(query)
+
+	print(json.dumps(torrents_found))
+	exit(0)
 
 	pprint(torrents_found)
 	candidates = chooseCandidate(torrents_found)
 	pprint(candidates)
-	exit(0)
 	torrents_found = pirate.search(query, page=0, multiple_pages=0, sort='size', category='movies')
 	movie_candidates = chooseCandidate(torrents_found)
 
@@ -74,8 +81,26 @@ def searchTorrentSite(query, site='piratebay'):
 	
 
 def main():
-	query = sys.argv[1]
-	searchTorrentSite(query)
+	site_options = ['jackett', 'piratebay']
+	parser = argparse.ArgumentParser(prog='Torrent Search', description='Search different torrent sites by query.')
+	parser.add_argument('query', 
+		nargs='+', 
+		help='query for searching torrents.')
+	parser.add_argument('-s', '--site', 
+		nargs='?', 
+		default='jackett', 
+		const='jackett', 
+		type=str,
+		choices=site_options,
+		help='the site to index (default: %(default)s)')
+	parser.add_argument('-v', 
+		action='store_true', 
+		help='verbose output.')
+
+	args = parser.parse_args()
+
+	config = getConfig()
+	searchTorrentSite(config, args.query, args.site)
 
 if __name__ == '__main__':
 	main()
