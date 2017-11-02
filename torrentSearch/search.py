@@ -13,21 +13,6 @@ def getConfig():
 
 	return config
 
-def search(term='', user=None, sort='date', order='desc', category='0_0',
-		quality_filter='0', page='1', per_page=75):
-    query_args = {
-        'term': term,
-        'user': user,
-        'sort': sort,
-        'order': order,
-        'category': category,
-        'page': page,
-        'per_page': per_page,
-        'max_search_results': app.config.get('MAX_SEARCH_RESULT', 1000)
-    }
-
-    jackettResult = search_jackett(**query_args)
-    return jackettResult
 
 # This should be done front_end!
 # I.E. filtering like this should be done in another script
@@ -42,9 +27,11 @@ def chooseCandidate(torrent_list):
 		intersecting_release_types = set(torrent.find_release_type()) & set(match_release_type)
 
 		size, _, size_id = torrent.size.partition(' ')
-		if intersecting_release_types and int(torrent.seed_count) > 0 and float(size) > 4 and size_id == 'GiB':
-			print('{} : {} : {} {}'.format(torrent.name, torrent.size, torrent.seed_count, torrent.magnet))
-			interesting_torrents.append(torrent)
+		# if intersecting_release_types and int(torrent.seed_count) > 0 and float(size) > 4 and size_id == 'GiB':
+		if intersecting_release_types:
+			interesting_torrents.append(torrent.get_all_attr())	
+			# print('{} : {} : {} {}'.format(torrent.name, torrent.size, torrent.seed_count, torrent.magnet))
+			# interesting_torrents.append(torrent)
 		# else:
 		# 	print('Denied match! %s : %s : %s' % (torrent.name, torrent.size, torrent.seed_count))
 
@@ -61,17 +48,14 @@ def searchTorrentSite(config, query, site):
 			config['JACKETT']['PATH'], config['JACKETT']['LIMIT'], config.getboolean('JACKETT', 'SSL'))
 		torrents_found = jackett.search(query)
 
-	print(json.dumps(torrents_found))
-	exit(0)
+	# print(json.dumps(torrents_found))
+	# exit(0)
 
-	pprint(torrents_found)
 	candidates = chooseCandidate(torrents_found)
-	pprint(candidates)
-	torrents_found = pirate.search(query, page=0, multiple_pages=0, sort='size', category='movies')
-	movie_candidates = chooseCandidate(torrents_found)
+	print(json.dumps(candidates))
 
-	print('Length full: {}'.format(len(candidates)))
-	print('Length movies: {}'.format(len(movie_candidates)))
+	# print('Length full: {}'.format(len(candidates)))
+	# print('Length movies: {}'.format(len(movie_candidates)))
 	# torrents_found = pirate.next_page()
 	# pprint(torrents_found)
 	# candidates = chooseCandidate(torrents_found)
