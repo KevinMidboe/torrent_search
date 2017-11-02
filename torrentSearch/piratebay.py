@@ -1,105 +1,48 @@
-# Should maybe not be able to set values without checking if they are valid?
-class piratebay(object):
-	def __init__(self, query=None, page=0, sort=None, category=None):
-		# This should be moved to a config file
-		self.url = 'https://thepiratebay.org/search'
-		self.sortTypes = {
-			'size': 5,
-			'seed_count': 99
-		}
-		self.categoryTypes = {
-			'movies': 207,
-			'porn_movies': 505,
-		}
-		# - - -
+#!/usr/bin/env python3.6
 
-		# Req params
-		self.query = query
-		self.page = page
-		self.sort = sort
-		self.category = category
-		self.total_pages = 0
-		self.headers = {'User-Agent': 'Mozilla/5.0'}
-		# self.headers = {}
+import re, logging
+from bs4 import BeautifulSoup
 
-	def build_URL_request(self):
-		url = '/'.join([self.url, parse.quote(self.query), str(self.page), str(self.sort), str(self.category)])
-		return request.Request(url, headers=self.headers)
+from http_utils import convert_query_to_percent_encoded_octets, build_url, fetch_url
+from utils import return_re_match
+from torrent import Torrent
 
-	def next_page(self):
-		# If page exceeds the max_page, return None
-		# Can either save the last query/url in the object or have it passed 
-		# again on call to next_page
+class Piratebay(object):
+	"""docstring for Jackett"""
+	def __init__(self, host, path, limit, ssl):
+		super(Piratebay, self).__init__()
+		self.host = host
+		self.path = path
+		self.page_limit = limit
+		self.ssl = ssl
+		self.page = 0
+		self.total_pages = -1
 
-		# Throw a error if it is not possible (overflow)
-		self.page += 1
-		print(self.page)
-		raw_page = self.callPirateBaT()
-		return self.parse_raw_page_for_torrents(raw_page)
+	# Returns the path set in the initiator
+	# return [string]
+	def get_path(self):
+		return self.path
 
-	def set_total_pages(self, raw_page):
-		# body-id:searchResults-id:content-align:center
-		soup = BeautifulSoup(raw_page, 'html.parser')
-		content_searchResult = soup.body.find(id='SearchResults')
-		page_div = content_searchResult.find_next(attrs={"align": "center"})
+	# Returns the page_limit set in the initiator
+	# return [string]
+	def get_page_limit(self):
+		return self.page_limit
 
-		last_page = 0
-		for page in page_div.find_all('a'):
-			last_page += 1
-
-		self.total_pages = last_page
-
-	def callPirateBaT(self):
-		req = self.build_URL_request()
-			
-		raw_page = self.fetchURL(req).read()
-		logging.info('Finished searching piratebay for query | %s' % stringTime())
-
-		if raw_page is None:
-			raise ValueError('Search result returned no content. Please check log for error reason.')
-
-		if self.total_pages is 0:
-			self.set_total_pages(raw_page)
+	# Starts the call to getting result from our indexer
+	# query [string]
+	# returns [List of Torrent objects]
+	def search(self, query):
+		search_query = convert_query_to_percent_encoded_octets(query)
+		baseUrl = 'http://' + self.host
 		
-		return raw_page
+		path = [self.get_path(), search_query, str(self.page)]
+		url = build_url(self.ssl, baseUrl, path)
+
+		res = fetch_url(url)
+
+		return self.parse_raw_page_for_torrents(res.read())
 
 
-	# Sets the search
-	def search(self, query, multiple_pages=1, page=0, sort=None, category=None):
-		# This should not be logged here, but in loop. Something else here maybe?
-		logging.info('Searching piratebay with query: %r, sort: %s and category: %s | %s' % 
-			(query, sort, category, stringTime()))
-		
-		if sort is not None and sort in self.sortTypes:
-			self.sort = self.sortTypes[sort]
-		else:
-			raise ValueError('Invalid sort category for piratebay search')
-
-		# Verify input? and reset total_pages
-		self.query = query
-
-		self.total_pages = 0
-		
-		if str(page).isnumeric() and type(page) == int and page >= 0:
-			self.page = page
-		
-		# TODO add category list
-		if category is not None and category in self.categoryTypes:
-			self.category = self.categoryTypes[category]
-
-		# TODO Pull most of this logic out bc it needs to also be done in next_page
-		
-		raw_page = self.callPirateBaT()
-		torrents_found = self.parse_raw_page_for_torrents(raw_page)
-		print(self.page)
-		
-		# Fetch in parallel
-		n = pagesToCount(multiple_pages, self.total_pages)
-		while n > 1:
-			torrents_found.extend(self.next_page())
-			n -= 1
-
-		return torrents_found
 
 
 	def removeHeader(self, bs4_element):
@@ -153,24 +96,10 @@ class piratebay(object):
 
 				torrent = Torrent(name, magnet['href'], size, uploader, date, seed, leech, url)
 
-				torrents_found.append(torrent)
+				torrents_found.append(torrent.get_all_attr())
 			else:
 				# print(torrentElement)
 				continue
 
 		logging.info('Found %s torrents for given search criteria.' % len(torrents_found))
 		return torrents_found
-
-		
-	def fetchURL(self, req):
-		try:
-		    response = request.urlopen(req)
-		except URLError as e:
-		    if hasattr(e, 'reason'):
-		        logging.error('We failed to reach a server with request: %s' % req.full_url)
-		        logging.error('Reason: %s' % e.reason)
-		    elif hasattr(e, 'code'):
-		        logging.error('The server couldn\'t fulfill the request.')
-		        logging.error('Error code: ', e.code)
-		else:
-		    return response
