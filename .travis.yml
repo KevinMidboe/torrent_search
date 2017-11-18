@@ -1,0 +1,11 @@
+language: python
+python:
+  - 3.6
+install:
+  - pip install -r requirements-dev.txt
+
+script: pytest
+
+after_success:
+  - coverage run -m pytest
+  - codecov -t $CODECOV_TOKEN
