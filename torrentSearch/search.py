@@ -72,8 +72,8 @@ def main():
 		help='query for searching torrents.')
 	parser.add_argument('-s', '--site', 
 		nargs='?', 
-		default='jackett', 
-		const='jackett', 
+		default='piratebay', 
+		const='piratebay', 
 		type=str,
 		choices=site_options,
 		help='the site to index (default: %(default)s)')
