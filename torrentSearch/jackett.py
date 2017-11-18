@@ -41,7 +41,7 @@ class Jackett(object):
 		args_dict = {
 			'apikey': self.get_apikey(),
 			'limit': self.get_page_limit(),
-			'q': convert_query_to_percent_encoded_octets(query)
+			'q': query
 		}
 
 		url = build_url(self.ssl, baseUrl, path, args_dict)
