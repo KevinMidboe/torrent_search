@@ -81,6 +81,7 @@ def main():
 		action='store_true', 
 		help='verbose output.')
 
+	# TODO add option to change default in config
 	args = parser.parse_args()
 
 	config = getConfig()
