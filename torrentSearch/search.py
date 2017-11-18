@@ -1,13 +1,16 @@
 #!/usr/bin/env python3.6
 import configparser
-import sys, argparse, json
+import sys, argparse, json, os
 
 from jackett import Jackett
 from piratebay import Piratebay
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def getConfig():
 	config = configparser.ConfigParser()
-	config.read('config.example.ini')
+	config_dir = os.path.join(BASE_DIR, 'config.example.ini')
+	config.read(config_dir)
 	jackett_host = config['JACKETT']['HOST']
 	jackett_use_ssl = config['JACKETT']['SSL']
 
@@ -44,7 +47,7 @@ def searchTorrentSite(config, query, site):
 			config['PIRATEBAY']['LIMIT'], config['PIRATEBAY']['SSL'])
 		torrents_found = pirate.search(query)
 	elif site == 'jackett':
-		jackett = Jackett(config['JACKETT']['apikey'], config['JACKETT']['HOST'], 
+		jackett = Jackett(config['JACKETT']['APIKEY'], config['JACKETT']['HOST'], 
 			config['JACKETT']['PATH'], config['JACKETT']['LIMIT'], config.getboolean('JACKETT', 'SSL'))
 		torrents_found = jackett.search(query)
 
