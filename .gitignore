@@ -100,6 +100,9 @@ ENV/
 # mypy
 .mypy_cache/
 
+# Mac ds_store
 .DS_Store
 
+# Our config file, this is to prevent uploading sensitive information
+*/config.ini
 config.ini
