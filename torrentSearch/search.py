@@ -9,13 +9,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def getConfig():
 	config = configparser.ConfigParser()
-	config_dir = os.path.join(BASE_DIR, 'config.example.ini')
+	config_dir = os.path.join(BASE_DIR, 'config.ini')
 	config.read(config_dir)
-	jackett_host = config['JACKETT']['HOST']
-	jackett_use_ssl = config['JACKETT']['SSL']
 
 	return config
-
 
 # This should be done front_end!
 # I.E. filtering like this should be done in another script
