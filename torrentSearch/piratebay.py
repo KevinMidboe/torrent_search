@@ -4,7 +4,7 @@ import re, logging
 from bs4 import BeautifulSoup
 
 from http_utils import convert_query_to_percent_encoded_octets, build_url, fetch_url
-from utils import return_re_match
+from utils import return_re_match, deHumansize
 from torrent import Torrent
 
 class Piratebay(object):
@@ -85,6 +85,7 @@ class Piratebay(object):
 				
 				date = return_re_match(info_text, r"(\d+\-\d+\s\d+)|(Y\-day\s\d{2}\:\d{2})")
 				size = return_re_match(info_text, r"(\d+(\.\d+)?\s[a-zA-Z]+)")
+				byteSize = deHumansize(size)
 
 				# COULD NOT FIND HREF!
 				if (magnet is None):
@@ -94,7 +95,7 @@ class Piratebay(object):
 				seed = seed_and_leech[0].get_text()
 				leech = seed_and_leech[1].get_text()
 
-				torrent = Torrent(name, magnet['href'], size, uploader, date, seed, leech, url)
+				torrent = Torrent(name, magnet['href'], byteSize, uploader, date, seed, leech, url)
 
 				torrents_found.append(torrent)
 			else:
