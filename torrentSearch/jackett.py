@@ -3,7 +3,7 @@
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import fromstring
 
-from http_utils import convert_query_to_percent_encoded_octets, build_url, fetch_url
+from http_utils import build_url, fetch_url
 from torrent import Torrent
 from utils import humansize
 
