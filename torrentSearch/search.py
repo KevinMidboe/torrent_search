@@ -14,6 +14,13 @@ def getConfig():
 
 	return config
 
+def createJSONList(torrents):
+	jsonList = []
+	for torrent in torrents:
+		jsonList.append(torrent.get_all_attr())
+
+	return json.dumps(jsonList)
+
 # This should be done front_end!
 # I.E. filtering like this should be done in another script
 # and should be done with the shared standard for types. 
@@ -48,11 +55,15 @@ def searchTorrentSite(config, query, site):
 			config['JACKETT']['PATH'], config['JACKETT']['LIMIT'], config.getboolean('JACKETT', 'SSL'))
 		torrents_found = jackett.search(query)
 
-	# print(json.dumps(torrents_found))
-	# exit(0)
 
-	candidates = chooseCandidate(torrents_found)
-	print(json.dumps(candidates))
+	jsonList = createJSONList(torrents_found)
+	print(jsonList)
+
+	# THIS BELOW IS IF WE ONLY WANT TO SEARCH FOR HQ CONTENT
+	# candidates = chooseCandidate(torrents_found)
+	# print(json.dumps(candidates))
+
+
 
 	# print('Length full: {}'.format(len(candidates)))
 	# print('Length movies: {}'.format(len(movie_candidates)))
