@@ -1,6 +1,8 @@
 # Torrent Search
 
-## Torznab
+[![PyVersion](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
+
 This is one of our ways we index torrents. We use jackett's torznab indexing to seach for multiple indexers at once.
 
 ## Table of Contents
