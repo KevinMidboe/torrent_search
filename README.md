@@ -5,6 +5,11 @@
 [![codecov](https://codecov.io/gh/KevinMidboe/torrent_search/branch/master/graph/badge.svg)](https://codecov.io/gh/KevinMidboe/torrent_search)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
+## Idea
+The idea behind this project is to create a modular torrent searcher/indexer in python. Currently we have the option to search for two sites, thepiratebay and with jackett. To add more sites one only needs to create a scraper script for a specific service, and from there create torrent class objects that are returned back to the search script. If the new site needs specific configuration values this can be set in the config.ini file and needs to be imported in the site selector in search.py. 
+
+If you have a site you want to add support to please contact me or fork this repository and create a pull request! If there are any other questions please don't hesitate to ask or add to this project.
+
 This is one of our ways we index torrents. We use jackett's torznab indexing to seach for multiple indexers at once.
 
 ## Table of Contents
