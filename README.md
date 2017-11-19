@@ -10,8 +10,6 @@ The idea behind this project is to create a modular torrent searcher/indexer in 
 
 If you have a site you want to add support to please contact me or fork this repository and create a pull request! If there are any other questions please don't hesitate to ask or add to this project.
 
-This is one of our ways we index torrents. We use jackett's torznab indexing to seach for multiple indexers at once.
-
 ## Table of Contents
 
 * [Setup a Virtual Environment](#setup_a_virtual_environment)
