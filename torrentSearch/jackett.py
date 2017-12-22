@@ -12,89 +12,99 @@ from torrentSearch.utils import humansize, representsInteger
 logger = logging.getLogger('torrentSearch')
 
 class Jackett(object):
-	"""docstring for Jackett"""
-	def __init__(self, apikey, host, path, limit, ssl):
-		super(Jackett, self).__init__()
-		self.apikey = apikey
-		self.host = host
-		self.path = path
-		self.page_limit = limit
-		self.ssl = ssl
+   """docstring for Jackett"""
+   def __init__(self, apikey, host, path, limit, ssl):
+      super(Jackett, self).__init__()
+      self.apikey = apikey
+      self.host = host
+      self.path = path
+      self.page_limit = limit
+      self.ssl = ssl
 
-	# Returns the api key set in the initiator
-	# return [string]
-	def get_apikey(self):
-		logger.debug('Using api key: {}'.format(self.apikey))
-		return self.apikey
+   def get_apikey(self):
+      logger.debug('Using api key: {}'.format(self.apikey))
+      return self.apikey
 
-	# Returns the path set in the initiator
-	# return [string]
-	def get_path(self):
-		return self.path
+   def get_path(self):
+      return self.path
 
-	# Returns the page_limit set in the initiator
-	# return [string]
-	def get_page_limit(self):
-		logger.debug('Current page limit: {} pages'.format(self.page_limit))
-		return self.page_limit
+   def get_page_limit(self):
+      logger.debug('Current page limit: {} pages'.format(self.page_limit))
+      return self.page_limit
 
-	# Starts the call to getting result from our indexer
-	# query [string]
-	# returns [List of Torrent objects]
-	def search(self, query):
-		baseUrl = 'http://' + self.host
-		path = self.get_path()
-		url_args = {
-			'apikey': self.get_apikey(),
-			'limit': self.get_page_limit(),
-			'q': query
-		}
-		logger.debug('Url arguments for jackett search: {}'.format(url_args))
+   def search(self, query):
+      """
+      Starts the call to getting result from our indexer
+      :param jackett.Jackett self: object instance
+      :param str query: query we want to search for 
+      :return: list of results we found from scraping jackett output based on query
+      :rtype: list
+      """
+      baseUrl = 'http://' + self.host
+      path = self.get_path()
+      url_args = {
+         'apikey': self.get_apikey(),
+         'limit': self.get_page_limit(),
+         'q': query
+      }
+      logger.debug('Url arguments for jackett search: {}'.format(url_args))
 
-		url = build_url(self.ssl, baseUrl, path, url_args)
-		res = fetch_url(url)
+      url = build_url(self.ssl, baseUrl, path, url_args)
+      res = fetch_url(url)
 
-		return self.parse_xml_for_torrents(res.read())
+      return self.parse_xml_for_torrents(res.read())
 
 
-	# def __init__(self, name, magnet=None, size=None, uploader=None, date=None,
-	# 	seed_count=None, leech_count=None, url=None):
+   def find_xml_attribute(self, xml_element, attr):
+      """
+      Finds a specific XML attribute given a element name
+      :param jackett.Jackett self: object instance
+      :param xml.etree.ElementTree.Element xml_element: the xml tree we want to search
+      :param str attr: the attribute/element name we want to find in the xml tree
+      :return: the value of the element fiven the attr/element name
+      :rtype: str
+      """
+      value = xml_element.find(attr)
+      if (value != None):
+         logger.debug('Found attribute: {}'.format(attr))
+         return value.text
+      else:
+         logger.warning('Could not find attribute: {}'.format(attr))
+         return ''
 
-	def find_xml_attribute(self, xml_element, attr):
-		value = xml_element.find(attr)
-		if (value != None):
-			logger.debug('Found attribute: {}'.format(attr))
-			return value.text
-		else:
-			logger.warning('Could not find attribute: {}'.format(attr))
-			return ''
+   def parse_xml_for_torrents(self, raw_xml):
+      """
+      Finds a specific XML attribute given a element name
+      :param jackett.Jackett self: object instance
+      :param bytes raw_xml: the xml page returned by querying jackett
+      :return: all the torrents we found in the xml page
+      :rtype: list
+      """
+      tree = ET.fromstring(raw_xml)
+      channel = tree.find('channel')
+      results = []
+      for child in channel.findall('item'):
+         title = self.find_xml_attribute(child, 'title')
+         date = self.find_xml_attribute(child, 'pubDate')
+         magnet = self.find_xml_attribute(child, 'link')
+         size = self.find_xml_attribute(child, 'size')         
+         files = self.find_xml_attribute(child, 'files')
+         seeders = 0
+         peers = 0
 
-	def parse_xml_for_torrents(self, raw_xml):
-		tree = ET.fromstring(raw_xml)
-		channel = tree.find('channel')
-		results = []
-		for child in channel.findall('item'):
-			title = self.find_xml_attribute(child, 'title')
-			date = self.find_xml_attribute(child, 'pubDate')
-			magnet = self.find_xml_attribute(child, 'link')
-			size = self.find_xml_attribute(child, 'size')			
-			files = self.find_xml_attribute(child, 'files')
-			seeders = 0
-			peers = 0
+         for elm in child.findall('{http://torznab.com/schemas/2015/feed}attr'):
+            if elm.get('name') == 'seeders':
+               seeders = elm.get('value')
+            if elm.get('name') == 'peers':
+               peers = elm.get('value')
 
-			for elm in child.findall('{http://torznab.com/schemas/2015/feed}attr'):
-				if elm.get('name') == 'seeders':
-					seeders = elm.get('value')
-				if elm.get('name') == 'peers':
-					peers = elm.get('value')
+         if (size != '' and representsInteger(size)):
+            size = humansize(int(size))
 
-			if (size != '' and representsInteger(size)):
-				size = humansize(int(size))
+         logger.debug('Found torrent with info: \n\ttitle: {}\n\tmagnet: {}\n\tsize: {}\n\tdate: {}\
+            \n\tseeders: {}\n\tpeers: {}'.format(title, magnet, size, date, seeders, peers))
+         torrent = Torrent(title, magnet=magnet, size=size, date=date, seed_count=seeders, leech_count=peers)
+         results.append(torrent)
 
-			logger.debug('Found torrent with info: \n\ttitle: {}\n\tmagnet: {}\n\tsize: {}\n\tdate: {}\
-				\n\tseeders: {}\n\tpeers: {}'.format(title, magnet, size, date, seeders, peers))
-			torrent = Torrent(title, magnet=magnet, size=size, date=date, seed_count=seeders, leech_count=peers)
-			results.append(torrent)
-
-		return results
+      return results
 

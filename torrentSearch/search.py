@@ -79,7 +79,9 @@ def main():
 def getConfig():
    """
    Read path and get configuartion file with site settings
-   Returns config [configparser]
+
+   :return: config settings read from 'config.ini'
+   :rtype: configparser.ConfigParser
    """
    config = configparser.ConfigParser()
    config_dir = os.path.join(BASE_DIR, 'config.ini')
@@ -90,7 +92,10 @@ def getConfig():
 def createJSONList(torrents):
    """
    Iterates over all torrent objects in torrents and gets all attributes which are appended to a list
-   Returns: List of torrents with all their info in a JSON format
+
+   :param list torrents: integer of size of torrent file
+   :return: List of torrents with all their info in a JSON format
+   :rtype: str
    """
    jsonList = []
    for torrent in torrents:
@@ -129,7 +134,13 @@ def chooseCandidate(torrent_list):
 def searchTorrentSite(config, query, site, print_result):
    """
    Selects site based on input and finds torrents for that site based on query
-   Returns json list with results. If print_results is True in args then also prints the output to terminal
+
+   :param configparser.ConfigParser config: integer of size of torrent filest
+   :param str query: query to search search torrents for
+   :param str site: the site we want to index/scrape
+   :param boolean print_result: if the in results should be printed to terminal
+   :return: json list with results
+   :rtype: str
    """
    logger.debug('Searching for query {} at {}'.format(query, site))
 
