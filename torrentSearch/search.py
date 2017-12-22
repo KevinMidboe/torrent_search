@@ -138,21 +138,6 @@ def searchTorrentSite(config, query, site, print_result):
       print(jsonList)
    return jsonList
 
-   # THIS BELOW IS IF WE ONLY WANT TO SEARCH FOR HQ CONTENT
-   # candidates = chooseCandidate(torrents_found)
-   # print(json.dumps(candidates))
-
-
-
-   # print('Length full: {}'.format(len(candidates)))
-   # print('Length movies: {}'.format(len(movie_candidates)))
-   # torrents_found = pirate.next_page()
-   # pprint(torrents_found)
-   # candidates = chooseCandidate(torrents_found)
-
-   # Can autocall to next_page in a looped way to get more if nothing is found
-   # and there is more pages to be looked at
-
 def signal_handler(signal, frame):
    """
    Handle exit by Keyboardinterrupt
