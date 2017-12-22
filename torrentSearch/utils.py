@@ -3,10 +3,14 @@
 # @Author: KevinMidboe
 # @Date:   2017-11-01 15:57:23
 # @Last Modified by:   KevinMidboe
-# @Last Modified time: 2017-11-19 00:05:10
+# @Last Modified time: 2017-12-22 11:16:09
 
 import re
+import logging
+import colored
+
 from datetime import datetime
+from colored import stylize
 
 SYMBOLS = {
 	'customary'     : ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'),
@@ -16,6 +20,24 @@ SYMBOLS = {
 	'iec_ext'       : ('byte', 'kibi', 'mebi', 'gibi', 'tebi', 'pebi', 'exbi',
 					   'zebi', 'yobi'),
 }
+
+__all__ = ('ColorizeFilter', )
+
+class ColorizeFilter(logging.Filter):
+
+    color_by_level = {
+        logging.DEBUG: 'yellow',
+        logging.WARNING: 'red',
+        logging.ERROR: 'red',
+        logging.INFO: 'white'
+    }
+
+    def filter(self, record):
+        record.raw_msg = record.msg
+        color = self.color_by_level.get(record.levelno)
+        if color:
+            record.msg = stylize(record.msg, colored.fg(color))
+        return True
 
 def sanitize(string, ignore_characters=None, replace_characters=None):
 	"""Sanitize a string to strip special characters.
@@ -57,6 +79,13 @@ def pagesToCount(multiple, total):
 	if (multiple > total):
 		return total
 	return multiple
+
+def representsInteger(str):
+	try:
+		int(str)
+		return True
+	except ValueError:
+		return False
 
 def deHumansize(s):
 	""" 
