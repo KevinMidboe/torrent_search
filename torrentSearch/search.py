@@ -30,7 +30,7 @@ import signal
 from docopt import docopt
 
 from torrentSearch import __version__
-from jackett import Jackett
+from torrentSearch.jackett import Jackett
 from torrentSearch.piratebay import Piratebay
 from torrentSearch.utils import ColorizeFilter
 
