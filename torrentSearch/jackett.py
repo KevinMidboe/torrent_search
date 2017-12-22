@@ -41,7 +41,7 @@ class Jackett(object):
       :rtype: list
       """
       baseUrl = 'http://' + self.host
-      path = self.get_path()
+      path = self.get_path().split('/')
       url_args = {
          'apikey': self.get_apikey(),
          'limit': self.get_page_limit(),
