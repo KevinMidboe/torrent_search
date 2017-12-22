@@ -88,6 +88,10 @@ def getConfig():
    return config
 
 def createJSONList(torrents):
+   """
+   Iterates over all torrent objects in torrents and gets all attributes which are appended to a list
+   Returns: List of torrents with all their info in a JSON format
+   """
    jsonList = []
    for torrent in torrents:
       jsonList.append(torrent.get_all_attr())
@@ -100,6 +104,10 @@ def createJSONList(torrents):
 # PS: Is it the right move to use a shared standard? What
 # happens if it is no longer public?
 def chooseCandidate(torrent_list):
+   """
+   Takes a list of torrents and filtes then on a given release type
+   Returns: JSON list of torrents only matching release type
+   """
    interesting_torrents = []
    match_release_type = ['bdremux', 'brremux', 'remux', 'bdrip', 'brrip', 'blu-ray', 'bluray', 'bdmv', 'bdr', 'bd5']
 
@@ -119,13 +127,15 @@ def chooseCandidate(torrent_list):
 
 
 def searchTorrentSite(config, query, site, print_result):
+   """
+   Selects site based on input and finds torrents for that site based on query
+   Returns json list with results. If print_results is True in args then also prints the output to terminal
+   """
    logger.debug('Searching for query {} at {}'.format(query, site))
 
    if site == 'piratebay':
       pirate = Piratebay(config['PIRATEBAY']['HOST'], config['PIRATEBAY']['PATH'],
          config['PIRATEBAY']['LIMIT'], config['PIRATEBAY']['SSL'])
-      print(pirate)
-      print('why no here?')
       torrents_found = pirate.search(query)
    elif site == 'jackett':
       jackett = Jackett(config['JACKETT']['APIKEY'], config['JACKETT']['HOST'], 
