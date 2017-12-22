@@ -1,14 +1,17 @@
 #!/usr/bin/env python3.6
 
-import re, logging
+import re
+import logging
 from bs4 import BeautifulSoup
 
-from http_utils import convert_query_to_percent_encoded_octets, build_url, fetch_url
-from utils import return_re_match, deHumansize
-from torrent import Torrent
+from torrentSearch.http_utils import convert_query_to_percent_encoded_octets, build_url, fetch_url
+from torrentSearch.utils import return_re_match, deHumansize
+from torrentSearch.torrent import Torrent
+
+logger = logging.getLogger('torrentSearch')
 
 class Piratebay(object):
-	"""docstring for Jackett"""
+	"""docstring for Piratebay"""
 	def __init__(self, host, path, limit, ssl):
 		super(Piratebay, self).__init__()
 		self.host = host
@@ -41,8 +44,6 @@ class Piratebay(object):
 		res = fetch_url(url)
 
 		return self.parse_raw_page_for_torrents(res.read())
-
-
 
 
 	def removeHeader(self, bs4_element):
@@ -89,6 +90,7 @@ class Piratebay(object):
 
 				# COULD NOT FIND HREF!
 				if (magnet is None):
+					logger.warning('Could not find magnet for {}'.format(name))
 					continue
 
 				seed_and_leech = torrentElement.find_all_next(attrs={"align": "right"})
@@ -99,7 +101,7 @@ class Piratebay(object):
 
 				torrents_found.append(torrent)
 			else:
-				# print(torrentElement)
+				logger.warning('Could not find torrent element on thepiratebay webpage.')
 				continue
 
 		logging.info('Found %s torrents for given search criteria.' % len(torrents_found))
