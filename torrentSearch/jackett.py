@@ -1,11 +1,15 @@
 #!/usr/bin/env python3.6
 
+import logging
+
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import fromstring
 
-from http_utils import build_url, fetch_url
-from torrent import Torrent
-from utils import humansize
+from torrentSearch.http_utils import build_url, fetch_url
+from torrentSearch.torrent import Torrent
+from torrentSearch.utils import humansize, representsInteger
+
+logger = logging.getLogger('torrentSearch')
 
 class Jackett(object):
 	"""docstring for Jackett"""
@@ -20,6 +24,7 @@ class Jackett(object):
 	# Returns the api key set in the initiator
 	# return [string]
 	def get_apikey(self):
+		logger.debug('Using api key: {}'.format(self.apikey))
 		return self.apikey
 
 	# Returns the path set in the initiator
@@ -30,6 +35,7 @@ class Jackett(object):
 	# Returns the page_limit set in the initiator
 	# return [string]
 	def get_page_limit(self):
+		logger.debug('Current page limit: {} pages'.format(self.page_limit))
 		return self.page_limit
 
 	# Starts the call to getting result from our indexer
@@ -38,14 +44,14 @@ class Jackett(object):
 	def search(self, query):
 		baseUrl = 'http://' + self.host
 		path = self.get_path()
-		args_dict = {
+		url_args = {
 			'apikey': self.get_apikey(),
 			'limit': self.get_page_limit(),
 			'q': query
 		}
+		logger.debug('Url arguments for jackett search: {}'.format(url_args))
 
-		url = build_url(self.ssl, baseUrl, path, args_dict)
-
+		url = build_url(self.ssl, baseUrl, path, url_args)
 		res = fetch_url(url)
 
 		return self.parse_xml_for_torrents(res.read())
@@ -54,18 +60,40 @@ class Jackett(object):
 	# def __init__(self, name, magnet=None, size=None, uploader=None, date=None,
 	# 	seed_count=None, leech_count=None, url=None):
 
+	def find_xml_attribute(self, xml_element, attr):
+		value = xml_element.find(attr)
+		if (value != None):
+			logger.debug('Found attribute: {}'.format(attr))
+			return value.text
+		else:
+			logger.warning('Could not find attribute: {}'.format(attr))
+			return ''
+
 	def parse_xml_for_torrents(self, raw_xml):
 		tree = ET.fromstring(raw_xml)
 		channel = tree.find('channel')
 		results = []
 		for child in channel.findall('item'):
-			title = child.find('title').text
-			date = child.find('pubDate').text
-			magnet = child.find('link').text
-			size = child.find('size').text
-			size = humansize(int(size))
+			title = self.find_xml_attribute(child, 'title')
+			date = self.find_xml_attribute(child, 'pubDate')
+			magnet = self.find_xml_attribute(child, 'link')
+			size = self.find_xml_attribute(child, 'size')			
+			files = self.find_xml_attribute(child, 'files')
+			seeders = 0
+			peers = 0
 
-			torrent = Torrent(title, magnet=magnet, size=size, date=date)
+			for elm in child.findall('{http://torznab.com/schemas/2015/feed}attr'):
+				if elm.get('name') == 'seeders':
+					seeders = elm.get('value')
+				if elm.get('name') == 'peers':
+					peers = elm.get('value')
+
+			if (size != '' and representsInteger(size)):
+				size = humansize(int(size))
+
+			logger.debug('Found torrent with info: \n\ttitle: {}\n\tmagnet: {}\n\tsize: {}\n\tdate: {}\
+				\n\tseeders: {}\n\tpeers: {}'.format(title, magnet, size, date, seeders, peers))
+			torrent = Torrent(title, magnet=magnet, size=size, date=date, seed_count=seeders, leech_count=peers)
 			results.append(torrent)
 
 		return results
