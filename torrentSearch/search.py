@@ -1,25 +1,98 @@
 #!/usr/bin/env python3.6
-import configparser
-import sys, argparse, json, os
+# -*- encoding: utf-8 -*-
 
+"""Torrent Search.
+
+Usage:
+   search.py <query> [-s <site>] [-p | --print] [--debug | --warning | --error]
+   search.py (-h | --help)
+   search.py --version
+
+Options:
+   -h --help     Show this screen
+   -s [site]     Site to index [default: piratebay] (piratebay|jackett)
+   -p --print    Print result to console
+   --version     Show version
+   --debug       Print all debug logs
+   --warning     Print only logged warnings
+   --error       Print error messages (Error/Warning)
+"""
+
+import sys
+import argparse
+import json
+import os
+import logging
+import logging.config
+import configparser
+import signal
+
+from docopt import docopt
+
+from torrentSearch import __version__
 from jackett import Jackett
-from piratebay import Piratebay
+from torrentSearch.piratebay import Piratebay
+from torrentSearch.utils import ColorizeFilter
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def getConfig():
-	config = configparser.ConfigParser()
-	config_dir = os.path.join(BASE_DIR, 'config.ini')
-	config.read(config_dir)
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s %(levelname)8s %(name)s | %(message)s')
+ch.setFormatter(formatter)
 
-	return config
+logger = logging.getLogger('torrentSearch')
+logger.addHandler(ch)
+logger.setLevel(logging.ERROR)  # This toggles all the logging in your app
+logger.addFilter(ColorizeFilter())   
+
+def main():
+   """
+   Main function, call searchTorrentSite
+   """
+   signal.signal(signal.SIGINT, signal_handler)
+
+   arguments = docopt(__doc__, version=__version__)
+
+   if arguments['--debug']:
+      logger.level = logging.DEBUG
+   elif arguments['--warning']:
+      logger.level = logging.WARNING
+   elif arguments['--error']:
+      logger.level = logging.ERROR
+
+   logger.info('Torrent Searcher')
+   logger.debug(arguments)
+
+   # Fetch config
+   config = getConfig()
+
+   if arguments['-s'] in config['DEFAULT']['SITE_OPTIONS'].split(','):
+      site = arguments['-s']
+      logger.debug('site selected: {}'.format(site))
+   else:
+      logger.error('"{}" is a invalid site. Select from: {}'.format(arguments['-s'], config['DEFAULT']['SITE_OPTIONS']))
+      sys.exit()
+
+   searchTorrentSite(config, arguments['<query>'], site, arguments['--print'])
+
+
+def getConfig():
+   """
+   Read path and get configuartion file with site settings
+   Returns config [configparser]
+   """
+   config = configparser.ConfigParser()
+   config_dir = os.path.join(BASE_DIR, 'config.ini')
+   config.read(config_dir)
+
+   return config
 
 def createJSONList(torrents):
-	jsonList = []
-	for torrent in torrents:
-		jsonList.append(torrent.get_all_attr())
+   jsonList = []
+   for torrent in torrents:
+      jsonList.append(torrent.get_all_attr())
 
-	return json.dumps(jsonList)
+   return json.dumps(jsonList)
 
 # This should be done front_end!
 # I.E. filtering like this should be done in another script
@@ -27,76 +100,65 @@ def createJSONList(torrents):
 # PS: Is it the right move to use a shared standard? What
 # happens if it is no longer public?
 def chooseCandidate(torrent_list):
-	interesting_torrents = []
-	match_release_type = ['bdremux', 'brremux', 'remux', 'bdrip', 'brrip', 'blu-ray', 'bluray', 'bdmv', 'bdr', 'bd5']
+   interesting_torrents = []
+   match_release_type = ['bdremux', 'brremux', 'remux', 'bdrip', 'brrip', 'blu-ray', 'bluray', 'bdmv', 'bdr', 'bd5']
 
-	for torrent in torrent_list:
-		intersecting_release_types = set(torrent.find_release_type()) & set(match_release_type)
+   for torrent in torrent_list:
+      intersecting_release_types = set(torrent.find_release_type()) & set(match_release_type)
 
-		size, _, size_id = torrent.size.partition(' ')
-		# if intersecting_release_types and int(torrent.seed_count) > 0 and float(size) > 4 and size_id == 'GiB':
-		if intersecting_release_types:
-			interesting_torrents.append(torrent.get_all_attr())	
-			# print('{} : {} : {} {}'.format(torrent.name, torrent.size, torrent.seed_count, torrent.magnet))
-			# interesting_torrents.append(torrent)
-		# else:
-		# 	print('Denied match! %s : %s : %s' % (torrent.name, torrent.size, torrent.seed_count))
+      size, _, size_id = torrent.size.partition(' ')
+      # if intersecting_release_types and int(torrent.seed_count) > 0 and float(size) > 4 and size_id == 'GiB':
+      if intersecting_release_types:
+         interesting_torrents.append(torrent.get_all_attr())   
+         # print('{} : {} : {} {}'.format(torrent.name, torrent.size, torrent.seed_count, torrent.magnet))
+         # interesting_torrents.append(torrent)
+      # else:
+      #  print('Denied match! %s : %s : %s' % (torrent.name, torrent.size, torrent.seed_count))
 
-	return interesting_torrents
-
-
-def searchTorrentSite(config, query, site):
-	if site == 'piratebay':
-		pirate = Piratebay(config['PIRATEBAY']['HOST'], config['PIRATEBAY']['PATH'],
-			config['PIRATEBAY']['LIMIT'], config['PIRATEBAY']['SSL'])
-		torrents_found = pirate.search(query)
-	elif site == 'jackett':
-		jackett = Jackett(config['JACKETT']['APIKEY'], config['JACKETT']['HOST'], 
-			config['JACKETT']['PATH'], config['JACKETT']['LIMIT'], config.getboolean('JACKETT', 'SSL'))
-		torrents_found = jackett.search(query)
+   return interesting_torrents
 
 
-	jsonList = createJSONList(torrents_found)
-	print(jsonList)
+def searchTorrentSite(config, query, site, print_result):
+   logger.debug('Searching for query {} at {}'.format(query, site))
 
-	# THIS BELOW IS IF WE ONLY WANT TO SEARCH FOR HQ CONTENT
-	# candidates = chooseCandidate(torrents_found)
-	# print(json.dumps(candidates))
+   if site == 'piratebay':
+      pirate = Piratebay(config['PIRATEBAY']['HOST'], config['PIRATEBAY']['PATH'],
+         config['PIRATEBAY']['LIMIT'], config['PIRATEBAY']['SSL'])
+      print(pirate)
+      print('why no here?')
+      torrents_found = pirate.search(query)
+   elif site == 'jackett':
+      jackett = Jackett(config['JACKETT']['APIKEY'], config['JACKETT']['HOST'], 
+         config['JACKETT']['PATH'], config['JACKETT']['LIMIT'], config.getboolean('JACKETT', 'SSL'))
+      torrents_found = jackett.search(query)
+
+   jsonList = createJSONList(torrents_found)
+
+   if (print_result):
+      print(jsonList)
+   return jsonList
+
+   # THIS BELOW IS IF WE ONLY WANT TO SEARCH FOR HQ CONTENT
+   # candidates = chooseCandidate(torrents_found)
+   # print(json.dumps(candidates))
 
 
 
-	# print('Length full: {}'.format(len(candidates)))
-	# print('Length movies: {}'.format(len(movie_candidates)))
-	# torrents_found = pirate.next_page()
-	# pprint(torrents_found)
-	# candidates = chooseCandidate(torrents_found)
+   # print('Length full: {}'.format(len(candidates)))
+   # print('Length movies: {}'.format(len(movie_candidates)))
+   # torrents_found = pirate.next_page()
+   # pprint(torrents_found)
+   # candidates = chooseCandidate(torrents_found)
 
-	# Can autocall to next_page in a looped way to get more if nothing is found
-	# and there is more pages to be looked at
-	
+   # Can autocall to next_page in a looped way to get more if nothing is found
+   # and there is more pages to be looked at
 
-def main():
-	site_options = ['jackett', 'piratebay']
-	parser = argparse.ArgumentParser(prog='Torrent Search', description='Search different torrent sites by query.')
-	parser.add_argument('query', 
-		nargs='+', 
-		help='query for searching torrents.')
-	parser.add_argument('-s', '--site', 
-		nargs='?', 
-		default='piratebay', 
-		const='piratebay', 
-		type=str,
-		choices=site_options,
-		help='the site to index (default: %(default)s)')
-	parser.add_argument('-v', 
-		action='store_true', 
-		help='verbose output.')
-
-	# TODO add option to change default in config
-	args = parser.parse_args()
-
-	config = getConfig()
-	searchTorrentSite(config, args.query, args.site)
+def signal_handler(signal, frame):
+   """
+   Handle exit by Keyboardinterrupt
+   """
+   logger.info('\nGood bye!')
+   sys.exit(0)
 
 if __name__ == '__main__':
-	main()
+   main()
