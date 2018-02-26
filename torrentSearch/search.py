@@ -4,7 +4,7 @@
 """Torrent Search.
 
 Usage:
-   search.py <query> [-s <site>] [-p | --print] [--debug | --warning | --error]
+   search.py <query> [-s <site>] [-f] [-p | --print] [--debug | --warning | --error]
    search.py (-h | --help)
    search.py --version
 
@@ -12,6 +12,7 @@ Options:
    -h --help     Show this screen
    -s [site]     Site to index [default: piratebay] (piratebay|jackett)
    -p --print    Print result to console
+   -f            Filter response on release type
    --version     Show version
    --debug       Print all debug logs
    --warning     Print only logged warnings
@@ -33,6 +34,8 @@ from torrentSearch import __version__
 from torrentSearch.jackett import Jackett
 from torrentSearch.piratebay import Piratebay
 from torrentSearch.utils import ColorizeFilter
+
+from pprint import pprint
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -73,7 +76,7 @@ def main():
       logger.error('"{}" is a invalid site. Select from: {}'.format(arguments['-s'], config['DEFAULT']['SITE_OPTIONS']))
       sys.exit()
 
-   searchTorrentSite(config, arguments['<query>'], site, arguments['--print'])
+   searchTorrentSite(config, arguments['<query>'], site, arguments['-f'], arguments['--print'])
 
 
 def getConfig():
@@ -120,18 +123,13 @@ def chooseCandidate(torrent_list):
       intersecting_release_types = set(torrent.find_release_type()) & set(match_release_type)
 
       size, _, size_id = torrent.size.partition(' ')
-      # if intersecting_release_types and int(torrent.seed_count) > 0 and float(size) > 4 and size_id == 'GiB':
       if intersecting_release_types:
-         interesting_torrents.append(torrent.get_all_attr())   
-         # print('{} : {} : {} {}'.format(torrent.name, torrent.size, torrent.seed_count, torrent.magnet))
-         # interesting_torrents.append(torrent)
-      # else:
-      #  print('Denied match! %s : %s : %s' % (torrent.name, torrent.size, torrent.seed_count))
+         interesting_torrents.append(torrent)   
 
    return interesting_torrents
 
 
-def searchTorrentSite(config, query, site, print_result):
+def searchTorrentSite(config, query, site, filter, print_result):
    """
    Selects site based on input and finds torrents for that site based on query
 
@@ -153,10 +151,14 @@ def searchTorrentSite(config, query, site, print_result):
          config['JACKETT']['PATH'], config['JACKETT']['LIMIT'], config.getboolean('JACKETT', 'SSL'))
       torrents_found = jackett.search(query)
 
+   if (filter):
+      torrents_found = chooseCandidate(torrents_found)
+   
    jsonList = createJSONList(torrents_found)
 
    if (print_result):
       print(jsonList)
+
    return jsonList
 
 def signal_handler(signal, frame):
