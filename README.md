@@ -3,6 +3,7 @@
 [![PyVersion](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Build Status](https://travis-ci.org/KevinMidboe/torrent_search.svg?branch=master)](https://travis-ci.org/KevinMidboe/torrent_search)
 [![codecov](https://codecov.io/gh/KevinMidboe/torrent_search/branch/master/graph/badge.svg)](https://codecov.io/gh/KevinMidboe/torrent_search)
+[![Known Vulnerabilities](https://snyk.io/test/github/kevinmidboe/torrent_search/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/kevinmidboe/torrent_search?targetFile=requirements.txt)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 ## Idea
