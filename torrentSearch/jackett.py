@@ -51,6 +51,7 @@ class Jackett(object):
       logger.debug('Url arguments for jackett search: {}'.format(url_args))
 
       url = build_url(self.ssl, baseUrl, path, url_args)
+      url = url.replace('+', '%20')
       res = fetch_url(url)
 
       return self.parse_xml_for_torrents(res.read())
