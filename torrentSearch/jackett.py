@@ -1,13 +1,14 @@
 #!/usr/bin/env python3.6
 
 import logging
+import re
 
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import fromstring
 
-from torrentSearch.http_utils import build_url, fetch_url
-from torrentSearch.torrent import Torrent
-from torrentSearch.utils import humansize, representsInteger
+from http_utils import build_url, fetch_url
+from torrent import Torrent
+from utils import humansize, representsInteger
 
 logger = logging.getLogger('torrentSearch')
 
@@ -36,7 +37,7 @@ class Jackett(object):
       """
       Starts the call to getting result from our indexer
       :param jackett.Jackett self: object instance
-      :param str query: query we want to search for 
+      :param str query: query we want to search for
       :return: list of results we found from scraping jackett output based on query
       :rtype: list
       """

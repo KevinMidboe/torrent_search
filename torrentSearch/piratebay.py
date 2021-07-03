@@ -4,9 +4,9 @@ import re
 import logging
 from bs4 import BeautifulSoup
 
-from torrentSearch.http_utils import convert_query_to_percent_encoded_octets, build_url, fetch_url
-from torrentSearch.utils import return_re_match, deHumansize
-from torrentSearch.torrent import Torrent
+from http_utils import convert_query_to_percent_encoded_octets, build_url, fetch_url
+from utils import return_re_match, deHumansize
+from torrent import Torrent
 
 logger = logging.getLogger('torrentSearch')
 
