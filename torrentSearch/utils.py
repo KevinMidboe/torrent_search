@@ -6,12 +6,15 @@
 # @Last Modified time: 2017-12-22 12:07:18
 
 import re
+import os
 import logging
 import colored
+import configparser
 
 from datetime import datetime
 from colored import stylize
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SYMBOLS = {
    'customary'     : ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'),
    'customary_ext' : ('byte', 'kilo', 'mega', 'giga', 'tera', 'peta', 'exa',
@@ -22,6 +25,19 @@ SYMBOLS = {
 }
 
 __all__ = ('ColorizeFilter', )
+
+def getConfig():
+   """
+   Read path and get configuartion file with site settings
+
+   :return: config settings read from 'config.ini'
+   :rtype: configparser.ConfigParser
+   """
+   config = configparser.ConfigParser()
+   config_dir = os.path.join(BASE_DIR, 'config.ini')
+   config.read(config_dir)
+
+   return config
 
 class ColorizeFilter(logging.Filter):
    """
