@@ -45,12 +45,12 @@ def chooseCandidate(torrent_list):
 
       size, _, size_id = torrent.size.partition(' ')
       if intersecting_release_types:
-         interesting_torrents.append(torrent)   
+         interesting_torrents.append(torrent)
 
    return interesting_torrents
 
 
-def searchTorrentSite(config, query, site, filter, print_result):
+def searchTorrentSite(query, site='jackett', filter=None, print_result=False, config=None):
    """
    Selects site based on input and finds torrents for that site based on query
 
@@ -61,6 +61,8 @@ def searchTorrentSite(config, query, site, filter, print_result):
    :return: json list with results
    :rtype: str
    """
+   if config is None:
+      config = getConfig()
    logger.debug('Searching for query {} at {}'.format(query, site))
 
    if site == 'piratebay':
