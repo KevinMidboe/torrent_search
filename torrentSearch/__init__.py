@@ -7,4 +7,4 @@ from sys import path
 from os.path import dirname
 path.append(dirname(__file__))
 
-__version__ = '0.1'
+__version__ = '0.1.post1'
