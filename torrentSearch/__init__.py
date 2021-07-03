@@ -1,5 +1,10 @@
+#!/usr/bin/env python3.6
 # -*- encoding: utf-8 -*-
 
 """Python Torrent Searcher/Scraper."""
 
-__version__ = 'v0.0.2'
+from sys import path
+from os.path import dirname
+path.append(dirname(__file__))
+
+__version__ = '0.1'
