@@ -91,6 +91,11 @@ class Jackett(object):
          magnet = self.find_xml_attribute(child, 'link')
          size = self.find_xml_attribute(child, 'size')         
          files = self.find_xml_attribute(child, 'files')
+         foundUploader = re.findall('-1? *\w*', title)
+         if len(foundUploader) > 0:
+            uploader = str(foundUploader[-1][1:])
+         else:
+            uploader = None
          seeders = 0
          peers = 0
 
@@ -105,7 +110,7 @@ class Jackett(object):
 
          logger.debug('Found torrent with info: \n\ttitle: {}\n\tmagnet: {}\n\tsize: {}\n\tdate: {}\
             \n\tseeders: {}\n\tpeers: {}'.format(title, magnet, size, date, seeders, peers))
-         torrent = Torrent(title, magnet=magnet, size=size, date=date, seed_count=seeders, leech_count=peers)
+         torrent = Torrent(title, magnet=magnet, size=size, uploader=uploader, date=date, seed_count=seeders, leech_count=peers)
          results.append(torrent)
 
       return results
