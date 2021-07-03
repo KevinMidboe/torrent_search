@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.6
 
 from json import dumps
+from utils import humansize, representsInteger
 
 RELEASE_TYPES = ('bdremux', 'brremux', 'remux',
 	'bdrip', 'brrip', 'blu-ray', 'bluray', 'bdmv', 'bdr', 'bd5',
@@ -15,7 +16,7 @@ RELEASE_TYPES = ('bdremux', 'brremux', 'remux',
 class Torrent(object):
 	def __init__(self, name, magnet=None, size=None, uploader=None, date=None,
 		seed_count=None, leech_count=None, url=None):
-		self.name  = name 
+		self.name  = name
 		self.magnet = magnet
 		self.size = size
 		self.uploader = uploader
@@ -23,6 +24,9 @@ class Torrent(object):
 		self.seed_count = seed_count
 		self.leech_count = leech_count
 		self.url = url
+
+		if (size != '' and representsInteger(size)):
+			self.human_size = humansize(int(size))
 
 	def find_release_type(self):
 		name = self.name.casefold()
