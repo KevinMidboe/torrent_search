@@ -12,11 +12,13 @@ steps:
     image: python:3.8
     commands:
       - python setup.py install
+      - pip install pytest
       - pytest
 
   - name: Upload coverage report
     image: python:3.8
     commands:
       - python setup.py install
+      - pip install pytest
       - coverage run -m pytest
       - codecov -t $CODECOV_TOKEN
