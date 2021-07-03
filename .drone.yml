@@ -22,3 +22,6 @@ steps:
       - pip install pytest coverage codecov
       - coverage run -m pytest
       - codecov -t $CODECOV_TOKEN
+    environment:
+      CODECOV_TOKEN:
+        from_secret: CODECOV_TOKEN
