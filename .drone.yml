@@ -1,0 +1,22 @@
+---
+kind: pipeline
+type: docker
+name: torrentSearch
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: Install python
+    image: python:3.8
+    commands:
+      - python setup.py install
+      - pytest
+
+  - name: Upload coverage report
+    image: python:3.8
+    commands:
+      - python setup.py install
+      - coverage run -m pytest
+      - codecov -t $CODECOV_TOKEN
