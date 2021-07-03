@@ -19,7 +19,7 @@ steps:
     image: python:3.8
     commands:
       - python setup.py install
-      - pip install pytest coverage codecov
+      - pip install -r requirements-dev.txt
       - coverage run -m pytest
       - codecov -t $CODECOV_TOKEN
     environment:
