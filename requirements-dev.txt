@@ -3,3 +3,4 @@
 # dependencies for testing
 pytest>=3.2.5
 codecov>=1.4.0
+coverage==5.5
