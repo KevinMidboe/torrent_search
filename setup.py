@@ -16,7 +16,7 @@ setup(
         'docopt',
         'beautifulsoup4',
         'termcolor',
-	'colored',
+	    'colored',
     ],
     url='https://github.com/KevinMidboe/torrent_search',
     classifiers=[
@@ -26,7 +26,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'search = torrentSearch.search:main',
+            'torrentsearch = torrentSearch.__main__:main',
         ],
     },
 )
