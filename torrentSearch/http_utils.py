@@ -46,7 +46,7 @@ def fetch_url(url):
    logger.debug('Fetching query: {}'.format(url))
    req = request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
    try:
-       response = request.urlopen(req, timeout=10)
+       response = request.urlopen(req, timeout=60)
        return response
    except URLError as e:
       if hasattr(e, 'reason'):
