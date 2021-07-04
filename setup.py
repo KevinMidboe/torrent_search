@@ -5,14 +5,14 @@ from setuptools import setup, find_packages
 from sys import path
 from os.path import dirname
 
-import torrentSearch
+from torrentSearch.__init__ import __version__
 
 with open("README.md", "r", encoding="utf-8") as fh:
   long_description = fh.read()
 
 setup(
     name='torrentSearch',
-    version=torrentSearch.__version__,
+    version=__version__,
     packages=find_packages(),
     package_data={
         'torrentSearch': ['default_config.ini'],
