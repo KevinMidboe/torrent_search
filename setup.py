@@ -23,9 +23,7 @@ setup(
     long_description_content_type='text/markdown',
     install_requires=[
         'docopt',
-        'beautifulsoup4',
-        'termcolor',
-	    'colored',
+	    'colored'
     ],
     url='https://github.com/KevinMidboe/torrent_search',
     classifiers=[
