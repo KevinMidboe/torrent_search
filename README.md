@@ -1,8 +1,12 @@
 # Torrent Search
 
-| Tested version | PyPi package | Drone CI | Travis CI | Code coverage | Known vulnerabilities | License |
-|:--------|:------|:------|:------|:------|:------|:------------|
-| [![PyVersion](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) | ![PyPI](https://img.shields.io/pypi/v/torrentSearch) | [![Build Status](https://drone.schleppe.cloud/api/badges/KevinMidboe/torrent_search/status.svg)](https://drone.schleppe.cloud/KevinMidboe/torrent_search) | [![Build Status](https://travis-ci.org/KevinMidboe/torrent_search.svg?branch=master)](https://travis-ci.org/KevinMidboe/torrent_search) | [![codecov](https://codecov.io/gh/KevinMidboe/torrent_search/branch/master/graph/badge.svg)](https://codecov.io/gh/KevinMidboe/torrent_search) | [![Known Vulnerabilities](https://snyk.io/test/github/kevinmidboe/torrent_search/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/kevinmidboe/torrent_search?targetFile=requirements.txt) | [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
+| Tested version | PyPi package | Drone CI | Travis CI |
+|:--------|:------|:------|:------------|
+| [![PyVersion](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) | ![PyPI](https://img.shields.io/pypi/v/torrentSearch) | [![Build Status](https://drone.schleppe.cloud/api/badges/KevinMidboe/torrent_search/status.svg)](https://drone.schleppe.cloud/KevinMidboe/torrent_search) | [![Build Status](https://travis-ci.org/KevinMidboe/torrent_search.svg?branch=master)](https://travis-ci.org/KevinMidboe/torrent_search)
+
+| Code coverage | Known vulnerabilities | License |
+|:--------|:------|:------------|
+| [![codecov](https://codecov.io/gh/KevinMidboe/torrent_search/branch/master/graph/badge.svg)](https://codecov.io/gh/KevinMidboe/torrent_search) | [![Known Vulnerabilities](https://snyk.io/test/github/kevinmidboe/torrent_search/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/kevinmidboe/torrent_search?targetFile=requirements.txt) | [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 ## Idea
 The idea behind this project is to create a modular torrent searcher/indexer in python. Currently we have the option to search for two sites, thepiratebay and with jackett. To add more sites one only needs to create a scraper script for a specific service, and from there create torrent class objects that are returned back to the search script. If the new site needs specific configuration values this can be set in the config.ini file and needs to be imported in the site selector in search.py. 
