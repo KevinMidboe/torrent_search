@@ -5,8 +5,7 @@ from setuptools import setup, find_packages
 from sys import path
 from os.path import dirname
 
-path.append(dirname(__file__))
-import delugeClient
+import torrentSearch
 
 with open("README.md", "r", encoding="utf-8") as fh:
   long_description = fh.read()
