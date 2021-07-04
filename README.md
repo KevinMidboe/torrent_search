@@ -2,7 +2,7 @@
 
 | Tested version | PyPi package | Drone CI | Travis CI |
 |:--------|:------|:------|:------------|
-| [![PyVersion](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) | ![PyPI](https://img.shields.io/pypi/v/torrentSearch) | [![Build Status](https://drone.schleppe.cloud/api/badges/KevinMidboe/torrent_search/status.svg)](https://drone.schleppe.cloud/KevinMidboe/torrent_search) | [![Build Status](https://travis-ci.org/KevinMidboe/torrent_search.svg?branch=master)](https://travis-ci.org/KevinMidboe/torrent_search)
+| [![PyVersion](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) | [![PyPI](https://img.shields.io/pypi/v/torrentSearch)](https://pypi.org/project/torrentSearch/) | [![Build Status](https://drone.schleppe.cloud/api/badges/KevinMidboe/torrent_search/status.svg)](https://drone.schleppe.cloud/KevinMidboe/torrent_search) | [![Build Status](https://travis-ci.org/KevinMidboe/torrent_search.svg?branch=master)](https://travis-ci.org/KevinMidboe/torrent_search)
 
 | Code coverage | Known vulnerabilities | License |
 |:--------|:------|:------------|
