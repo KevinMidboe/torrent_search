@@ -20,6 +20,7 @@ setup(
     author='KevinMidboe',
     description='Search For Torrents',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     install_requires=[
         'docopt',
         'beautifulsoup4',
