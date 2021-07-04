@@ -2,8 +2,14 @@
 # -*- encoding: utf-8 -*-
 
 from setuptools import setup, find_packages
+from sys import path
+from os.path import dirname
 
-import torrentSearch
+path.append(dirname(__file__))
+import delugeClient
+
+with open("README.md", "r", encoding="utf-8") as fh:
+  long_description = fh.read()
 
 setup(
     name='torrentSearch',
@@ -14,7 +20,7 @@ setup(
     },
     author='KevinMidboe',
     description='Search For Torrents',
-    long_description="README on github : https://github.com/KevinMidboe/torrent_search",
+    long_description=long_description,
     install_requires=[
         'docopt',
         'beautifulsoup4',
