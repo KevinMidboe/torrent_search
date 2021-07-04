@@ -28,16 +28,9 @@ from docopt import docopt
 from __init__ import __version__
 
 from search import searchTorrentSite
-from utils import ColorizeFilter, getConfig
-
-ch = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(levelname)8s %(name)s | %(message)s')
-ch.setFormatter(formatter)
+from utils import getConfig
 
 logger = logging.getLogger('torrentSearch')
-logger.addHandler(ch)
-logger.setLevel(logging.ERROR)  # This toggles all the logging in your app
-logger.addFilter(ColorizeFilter())
 
 def main():
    """
