@@ -7,6 +7,7 @@
 
 import re
 import os
+import shutil
 import logging
 import colored
 import configparser
@@ -25,19 +26,27 @@ SYMBOLS = {
 }
 
 __all__ = ('ColorizeFilter', )
+logger = logging.getLogger('torrentSearch')
 
 def getConfig():
-   """
-   Read path and get configuartion file with site settings
+  """
+  Read path and get configuartion file with site settings
+  :return: config settings read from 'config.ini'
+  :rtype: configparser.ConfigParser
+  """
+  config = configparser.ConfigParser()
+  user_config_dir = os.path.expanduser("~") + "/.config/torrentSearch"
 
-   :return: config settings read from 'config.ini'
-   :rtype: configparser.ConfigParser
-   """
-   config = configparser.ConfigParser()
-   config_dir = os.path.join(BASE_DIR, 'config.ini')
-   config.read(config_dir)
+  config_dir = os.path.join(user_config_dir, 'config.ini')
+  if not os.path.isfile(config_dir):
+    defaultConfig = os.path.join(BASE_DIR, 'default_config.ini')
+    print(defaultConfig)
+    logger.error('Missing config! Moved default_config.ini to {}.\nOpen this file and set all varaibles!'.format(config_dir))
+    os.makedirs(user_config_dir, exist_ok=True)
+    shutil.copyfile(defaultConfig, config_dir)
 
-   return config
+  config.read(config_dir)
+  return config
 
 class ColorizeFilter(logging.Filter):
    """

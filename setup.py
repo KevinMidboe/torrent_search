@@ -9,6 +9,9 @@ setup(
     name='torrentSearch',
     version=torrentSearch.__version__,
     packages=find_packages(),
+    package_data={
+        'torrentSearch': ['default_config.ini'],
+    },
     author='KevinMidboe',
     description='Search For Torrents',
     long_description="README on github : https://github.com/KevinMidboe/torrent_search",
