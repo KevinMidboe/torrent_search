@@ -19,8 +19,8 @@ steps:
   - name: Upload coverage report
     image: python:3.8
     commands:
-      - python setup.py install
       - pip install -r requirements-dev.txt
+      - python setup.py install
       - coverage run -m pytest
       - codecov -t $CODECOV_TOKEN
     environment:
