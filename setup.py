@@ -25,7 +25,7 @@ setup(
         'docopt',
         'beautifulsoup4',
         'termcolor',
-	    'colored==1.3.5'
+	    'colored'
     ],
     url='https://github.com/KevinMidboe/torrent_search',
     classifiers=[
