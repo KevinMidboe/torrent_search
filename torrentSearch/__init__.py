@@ -7,7 +7,7 @@ from sys import path
 from os.path import dirname
 path.append(dirname(__file__))
 
-__version__ = '0.1.2'
+__version__ = '0.2'
 
 import logging
 from utils import ColorizeFilter
