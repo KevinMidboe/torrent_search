@@ -1,6 +1,9 @@
 .PHONY: clean
 binaries=dist build
 
+install:
+	python3 setup.py install
+
 dist:
 	python3 setup.py sdist
 

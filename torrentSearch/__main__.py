@@ -25,7 +25,7 @@ import logging.config
 import signal
 
 from docopt import docopt
-from __init__ import __version__
+from __version__ import __version__
 
 from search import searchTorrentSite
 from utils import getConfig
