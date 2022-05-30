@@ -40,7 +40,6 @@ def getConfig():
   config_dir = os.path.join(user_config_dir, 'config.ini')
   if not os.path.isfile(config_dir):
     defaultConfig = os.path.join(BASE_DIR, 'default_config.ini')
-    print(defaultConfig)
     logger.error('Missing config! Moved default_config.ini to {}.\nOpen this file and set all varaibles!'.format(config_dir))
     os.makedirs(user_config_dir, exist_ok=True)
     shutil.copyfile(defaultConfig, config_dir)
