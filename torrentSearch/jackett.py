@@ -8,6 +8,7 @@ from xml.etree.ElementTree import fromstring
 
 from http_utils import build_url, fetch_url
 from torrent import Torrent
+from utils import humansize, representsInteger
 
 logger = logging.getLogger('torrentSearch')
 
@@ -103,6 +104,8 @@ class Jackett(object):
                seeders = elm.get('value')
             if elm.get('name') == 'peers':
                peers = elm.get('value')
+            if size != '' and representsInteger(size):
+               size = humansize(int(size))
 
          logger.debug('Found torrent with info: \n\ttitle: {}\n\tmagnet: {}\n\tsize: {}\n\tdate: {}\
             \n\tseeders: {}\n\tpeers: {}'.format(title, magnet, size, date, seeders, peers))
