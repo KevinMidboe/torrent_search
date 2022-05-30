@@ -8,11 +8,15 @@ platform:
   arch: amd64
 
 steps:
-  - name: Install python
+  - name: Build package
     image: python:3.8
     commands:
-      - pip install -r requirements.txt
-      - python setup.py install
+      - make build
+
+  - name: Run tests
+    image: python:3.8
+    commands:
+      - make install
       - pip install pytest
       - pytest
 
@@ -20,7 +24,7 @@ steps:
     image: python:3.8
     commands:
       - pip install -r requirements-dev.txt
-      - python setup.py install
+      - make install
       - coverage run -m pytest
       - codecov -t $CODECOV_TOKEN
     environment:
